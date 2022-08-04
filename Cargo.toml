@@ -1,0 +1,8 @@
+[package]
+name = "five-letter-words"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[profile.release]
