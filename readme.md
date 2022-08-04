@@ -32,3 +32,24 @@ cargo run --release  27.26s user 0.00s system 99% cpu 27.271 total
 ```
 
 Word list is taken from [Wordle](https://www.nytimes.com/games/wordle/index.html) as described in the video.
+
+For an apples-to-apples comparison, here it is using the word list from https://github.com/dwyl/english-words.
+
+```
+❯ time RUSTFLAGS="-C target-cpu=native" cargo run --release
+    Finished release [optimized] target(s) in 0.00s
+     Running `/home/ahouts/Projects/five-letter-words/target/release/five-letter-words`
+found 5977 unique sets of 5 letters that appear in words
+538 five word anagram groups with no overlapping letters found
+bejig hdqrs fconv ampyx klutz
+bejig chump vrows fldxt knyaz
+bejig quack vrows fldxt nymph
+bejig supvr mowch fldxt knyaz
+...
+vingt frowl pbxes jacky zhmud
+vughs wrack fldxt jimpy benzo
+vughs wrack fldxt jimpy bonze
+supvr whack fldxt benjy gizmo
+supvr chawk fldxt benjy gizmo
+RUSTFLAGS="-C target-cpu=native" cargo run --release  51.07s user 0.01s system 99% cpu 51.113 total
+```

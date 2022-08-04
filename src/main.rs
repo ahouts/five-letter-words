@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, HashSet};
 
-const WORDS: &str = include_str!("wordle-words.txt");
+const WORDS: &str = include_str!("five-letter-words.txt");
 
 fn main() {
     let words: HashSet<&str> = WORDS.lines().collect();
