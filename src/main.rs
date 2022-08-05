@@ -1,6 +1,9 @@
+use rayon::iter::{
+    IndexedParallelIterator, IntoParallelIterator, IntoParallelRefIterator, ParallelIterator,
+};
 use std::collections::{BTreeSet, HashSet};
 
-const WORDS: &str = include_str!("five-letter-words.txt");
+const WORDS: &str = include_str!("wordle-words.txt");
 
 fn main() {
     let words: HashSet<&str> = WORDS.lines().collect();
@@ -10,37 +13,44 @@ fn main() {
         "found {} unique sets of 5 letters that appear in words",
         packed_words.len()
     );
-    let mut results: BTreeSet<(u32, u32, u32, u32, u32)> = BTreeSet::new();
-    for (i1, w1) in packed_words.iter().copied().enumerate() {
-        let ti = i1 + 1;
-        let wi = w1;
-        for (i2, w2) in packed_words[ti..].iter().copied().enumerate() {
-            if (wi & w2) != 0 {
-                continue;
-            }
-            let ti = ti + i2;
-            let wi = wi | w2;
-            for (i3, w3) in packed_words[ti..].iter().copied().enumerate() {
-                if (wi & w3) != 0 {
+    let results: BTreeSet<(u32, u32, u32, u32, u32)> = packed_words
+        .par_iter()
+        .copied()
+        .enumerate()
+        .flat_map(|(i1, w1)| {
+            let mut results: BTreeSet<(u32, u32, u32, u32, u32)> = BTreeSet::new();
+            let ti = i1 + 1;
+            let wi = w1;
+            for (i2, w2) in packed_words[ti..].iter().copied().enumerate() {
+                if (wi & w2) != 0 {
                     continue;
                 }
-                let ti = ti + i3;
-                let wi = wi | w3;
-                for (i4, w4) in packed_words[ti..].iter().copied().enumerate() {
-                    if (wi & w4) != 0 {
+                let ti = ti + i2;
+                let wi = wi | w2;
+                for (i3, w3) in packed_words[ti..].iter().copied().enumerate() {
+                    if (wi & w3) != 0 {
                         continue;
                     }
-                    let ti = ti + i4;
-                    let wi = wi | w4;
-                    for w5 in packed_words[ti..].iter() {
-                        if (wi & w5) == 0 {
-                            results.insert((w1, w2, w3, w4, *w5));
+                    let ti = ti + i3;
+                    let wi = wi | w3;
+                    for (i4, w4) in packed_words[ti..].iter().copied().enumerate() {
+                        if (wi & w4) != 0 {
+                            continue;
+                        }
+                        let ti = ti + i4;
+                        let wi = wi | w4;
+                        for w5 in packed_words[ti..].iter() {
+                            if (wi & w5) == 0 {
+                                results.insert((w1, w2, w3, w4, *w5));
+                            }
                         }
                     }
                 }
             }
-        }
-    }
+            results.into_par_iter()
+        })
+        .collect();
+
     println!(
         "{} five word anagram groups with no overlapping letters found",
         results.len()
